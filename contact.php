@@ -1,48 +1,78 @@
-<!-- contact.html -->
+<?php
+session_start();
+
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "webshop";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $name = $_POST["name"];
+    $email = $_POST["email"];
+    $message = $_POST["message"];
+
+    $sql = "INSERT INTO user_interactions (name, email, message) VALUES ('$name', '$email', '$message')";
+    if ($conn->query($sql) === TRUE) {
+        echo '<script>alert("Message sent successfully!");</script>';
+    } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+    }
+}
+
+$conn->close();
+?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gym WebShop - Contact</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-        integrity="sha512-6e5LZk39lFoW6wqJlgX06EOMlHbukN5X9rz2+KZlThHOBR7gGyTM3rDukIuipjGWs9s2/iZI/D5EKJ2KFD6J/6g=="
-        crossorigin="anonymous">
-    <link rel="stylesheet" href="styles.css">
-</head>
+    <link rel="stylesheet" href="/css/styles.css">
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script>
+        function updateCartCount() {
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('GET', 'getCartCount.php', true);
+
+            xhr.onload = function () {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    var count = xhr.responseText;
+
+                    $('#cartCount').text('Cart(' + count + ')');
+                } else {
+                    console.error('Request failed with status', xhr.status);
+                }
+            };
+
+            xhr.send();
+        }
+
+        function showNotification(message) {
+            alert(message);
+        }
+
+        $(document).ready(function () {
+            updateCartCount();
+        });
+    </script>
+</head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-light">
-
-        <a class="navbar-brand" href="homepage.php">
-            <i class="fas fa-home"></i> Homepage
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="products.php">
-                        <i class="fas fa-dumbbell"></i> Products
-                    </a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="contact.html">
-                        <i class="fas fa-id-card"></i> Contact
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </nav>
+    <?php include 'navbar.php'; ?>
 
     <header class="text-center mt-0">
-        <h1>Gym WebShop - Contact</h1>
+        <h1>Gym WebShop - Contact &#9742;</h1>
     </header>
 
     <div class="container mt-5">
@@ -83,6 +113,6 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-</body>
 
+</body>
 </html>

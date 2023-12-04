@@ -15,82 +15,81 @@ if ($conn->connect_error) {
 
 $sql = "SELECT * FROM products LIMIT $results_per_page";
 $result = $conn->query($sql);
-
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gym WebShop</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-6e5LZk39lFoW6wqJlgX06EOMlHbukN5X9rz2+KZlThHOBR7gGyTM3rDukIuipjGWs9s2/iZI/D5EKJ2KFD6J/6g==" crossorigin="anonymous">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/css/styles.css">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
     <script>
-    function addToCart(productId, event) {
-        // Prevent the default behavior of the anchor tag
-        event.preventDefault();
+        function addToCart(productId, event) {
+            event.preventDefault();
 
-        // Use AJAX to call addToCart.php
-        $.get('addToCart.php?productId=' + productId, function(data) {
-            // Display a simple pop-up notification
-            showNotification('Item added to cart!');
+            var isConfirmed = confirm("Do you want to add this item to your cart?");
+
+            if (isConfirmed) {
+                var xhr = new XMLHttpRequest();
+
+                xhr.open('GET', 'addToCart.php?productId=' + productId, true);
+
+                xhr.onload = function () {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        var data = xhr.responseText;
+                        showNotification(data);
+
+                        updateCartCount();
+                    } else {
+                        console.error('Request failed with status', xhr.status);
+                    }
+                };
+
+                xhr.send();
+            } else {
+                console.log("User canceled adding to cart");
+            }
+        }
+
+        function showNotification(message) {
+            alert(message);
+        }
+
+        function updateCartCount() {
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('GET', 'getCartCount.php', true);
+
+            xhr.onload = function () {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    var count = xhr.responseText;
+
+                    $('#cartCount').text('Cart(' + count + ')');
+                } else {
+                    console.error('Request failed with status', xhr.status);
+                }
+            };
+
+            xhr.send();
+        }
+
+        $(document).ready(function () {
+            updateCartCount();
         });
-    }
 
-    function showNotification(message) {
-        // Display a simple pop-up notification
-        alert(message);
-    }
-</script>
+    </script>
 
 </head>
+
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-light">
-        <a class="navbar-brand" href="#">
-            <i class="fas fa-home"></i> Homepage
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="products.php">
-                        <i class="fas fa-dumbbell"></i> Products
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="contact.html">
-                        <i class="fas fa-id-card"></i> Contact
-                    </a>
-                </li>
-                <?php
-                if (isset($_SESSION['user_id'])) {
-                    echo '<li class="nav-item">
-                            <a class="nav-link" href="cart.php">
-                                <i class="fas fa-shopping-cart"></i> Cart
-                            </a>
-                        </li>';
-                    echo '<li class="nav-item">
-                            <a class="nav-link" href="logout.php">
-                                <i class="fas fa-sign-out-alt"></i> Log out
-                            </a>
-                        </li>';
-                } else {
-                    echo '<li class="nav-item">
-                            <a class="nav-link" href="login.php">
-                                <i class="fas fa-sign-in-alt"></i> Log in
-                            </a>
-                        </li>';
-                }
-                ?>
-            </ul>
-        </div>
-    </nav>
+    <?php include 'navbar.php'; ?>
 
     <header class="text-center mt-0">
         <h1>Gym WebShop</h1>
@@ -110,8 +109,7 @@ $result = $conn->query($sql);
                     echo '<h5 class="card-title">' . $row['name'] . '</h5>';
                     echo '<p class="card-text">' . $row['description'] . '</p>';
                     echo '<p class="card-text">Price: $' . $row['price'] . '</p>';
-                    echo '<a href="#" class="btn btn-primary" onclick="addToCart(' . $row['id'] . ')">Add to cart</a>
-                    ';
+                    echo '<a href="#" class="btn btn-primary" onclick="addToCart(' . $row['id'] . ', event)">Add to cart</a>';
                     echo '</div></div>';
                 }
             } else {
@@ -141,14 +139,8 @@ $result = $conn->query($sql);
     </footer>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
-    <script>
-        function addToCart(productId) {
-            window.location.href = 'cart.php?productId=' + productId;
-        }
-    </script>
-
 </body>
+
 </html>

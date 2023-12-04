@@ -1,0 +1,62 @@
+
+.navbar-light .navbar-brand {
+    color: #fff; /* Set the color to white */
+}
+
+.navbar-brand i.fas,
+.navbar-nav .nav-link i.fas {
+    margin-right: 5px; /* Adjust as needed */
+    color: white; /* Change icon color to white */
+}
+
+/* Icon styles for each button */
+.navbar-brand i.fas.fa-home::before {
+    content: '\f015'; /* Home icon */
+}
+
+.navbar-nav .nav-link i.fas.fa-dumbbell::before {
+    content: '\f44b'; /* Dumbbell icon */
+}
+
+.navbar-nav .nav-link i.fas.fa-id-card::before {
+    content: '\f2c2'; /* ID Card icon */
+}
+
+.navbar-nav .nav-link i.fas.fa-shopping-cart::before {
+    content: '\f07a'; /* Shopping Cart icon */
+}
+
+.navbar-nav .nav-link i.fas.fa-sign-out-alt::before {
+    content: '\f2f5'; /* Sign Out Alt icon */
+}
+
+.navbar-nav .nav-link i.fas.fa-sign-in-alt::before {
+    content: '\f2f6'; /* Sign In Alt icon */
+}
+
+/* Additional styling for sharper icons and buttons */
+.navbar-nav .nav-link i.fas::before {
+    font-weight: bold; /* Make the icon bolder */
+    font-size: 1.5em; /* Reduce the icon size by half again */
+}
+
+.navbar-nav .nav-link {
+    color: white !important; /* Set text color to white */
+}
+
+.navbar-nav .nav-link:hover {
+    color: rgb(190, 147, 66) !important; /* Set text color on hover */
+}
+
+.navbar-nav .nav-link.active {
+    color: white !important; /* Set text color for active state */
+}
+
+
+.navbar-nav li.nav-item a.nav-link {
+    text-decoration: none;
+}
+
+.navbar-brand a.nav-link i.fas.fa-home::before {
+    color: white !important;
+}

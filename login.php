@@ -15,25 +15,24 @@ if ($conn->connect_error) {
 $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $korisnicko_ime = $_POST['korisnicko_ime'];
-    $lozinka = $_POST['lozinka'];
+    $username = $_POST['username'];
+    $password = $_POST['password'];
 
-    $sql = "SELECT * FROM korisnici WHERE korisnicko_ime = ?";
+    $sql = "SELECT * FROM users WHERE username = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param('s', $korisnicko_ime);
+    $stmt->bind_param('s', $username);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
 
-        if (password_verify($lozinka, $row['lozinka'])) {
-            $message = 'Prijava uspješna!';
+        if (password_verify($password, $row['password'])) {
 
-            $akcija = 'Prijava';
-            $sql = "INSERT INTO log (korisnicko_ime, akcija) VALUES (?, ?)";
+            $action = 'Login';
+            $sql = "INSERT INTO log (username, action, time_and_date) VALUES (?, ?, NOW())";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param('ss', $korisnicko_ime, $akcija);
+            $stmt->bind_param('ss', $username, $action);
             $stmt->execute();
 
             session_start();
@@ -42,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: homepage.php');
             exit();
         } else {
-            $message = 'Pogrešna lozinka.';
+            $message = 'Pogrešna password.';
         }
     } else {
         $message = 'Korisnik nije pronađen.';
@@ -60,11 +59,11 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prijava</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/css/logandregister.css">
 </head>
 <body>
     <header class="text-center mt-0">
-        <h1>Prijava</h1>
+        <h1>Login</h1>
     </header>
     <div class="container mt-5">
         <div class="row">
@@ -76,12 +75,12 @@ $conn->close();
                 <?php endif; ?>
                 <form action="login.php" method="post">
                     <div class="form-group">
-                        <label for="korisnicko_ime">Korisničko ime</label>
-                        <input type="text" class="form-control" id="korisnicko_ime" name="korisnicko_ime" required>
+                        <label for="username">Korisničko ime</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
                     </div>
                     <div class="form-group">
-                        <label for="lozinka">Lozinka</label>
-                        <input type="password" class="form-control" id="lozinka" name="lozinka" required>
+                        <label for="password">Lozinka</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
                     </div>
                     <button type="submit" class="btn btn-primary">Prijavi se</button>
                 </form>

@@ -1,0 +1,84 @@
+/* Osnovni stilovi za tijelo stranice */
+body {
+    background-color: rgb(1, 23, 71);
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+}
+
+/* Stilovi za zaglavlje (header) */
+header {
+    background-color: #000000;
+    color: #ffffff;
+    padding: 10px;
+    margin-bottom: 0;
+}
+
+/* Stilovi za kontejner (container) */
+.container {
+    flex: 1;
+}
+
+/* Stilovi za prikaz karata u card-deck */
+.card-deck {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+/* Stilovi za kartice (card) */
+.card {
+    width: 18%;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+/* Stilovi za paginaciju */
+.pagination {
+    display: flex;
+    list-style: none;
+}
+
+.pagination a {
+    padding: 8px;
+    margin: 2px;
+    border: 1px solid #ccc;
+    text-decoration: none;
+}
+
+.pagination a.active {
+    background-color: #146fb4;
+    color: #fff;
+}
+
+/* Stilovi za podnožje (footer) */
+.footer {
+    background-color: #000000;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+
+/* Stilovi za kontejner paginacije */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+}
+
+body,
+.container {
+    color: #fff; /* Set text color to white */
+}
+
+body.homepage,
+.container.homepage {
+    color: #fff; /* Set text color to white */
+}

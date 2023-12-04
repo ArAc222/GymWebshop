@@ -6,11 +6,6 @@ $username = "root";
 $password = "";
 $dbname = "webshop";
 
-if (!isset($_SESSION['user_id'])) {
-    echo "User not logged in.";
-    exit();
-}
-
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 if ($conn->connect_error) {
@@ -20,28 +15,42 @@ if ($conn->connect_error) {
 if (isset($_GET['productId'])) {
     $productId = $_GET['productId'];
 
-    // Check if the product is already in the cart
-    $sql = "SELECT * FROM cart_items WHERE user_id = ? AND product_id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('ii', $_SESSION['user_id'], $productId);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
 
-    if ($result->num_rows > 0) {
-        // Product is already in the cart, you can handle this case as needed
-        // For example, you can update the quantity or display a message
-        echo "Product is already in the cart.";
-    } else {
-        // Product is not in the cart, add it
-        $sql = "INSERT INTO cart_items (user_id, product_id, quantity) VALUES (?, ?, 1)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param('ii', $_SESSION['user_id'], $productId);
-        $stmt->execute();
+    $username = '';
+    if ($user_id) {
+        $userSql = "SELECT username FROM users WHERE id = $user_id";
+        $userResult = $conn->query($userSql);
 
-        echo "Product added to the cart!";
+        if ($userResult->num_rows > 0) {
+            $userRow = $userResult->fetch_assoc();
+            $username = $userRow['username'];
+        }
     }
 
+    $checkSql = "SELECT * FROM cart_items WHERE user_id = $user_id AND product_id = $productId";
+    $checkResult = $conn->query($checkSql);
+
+    if ($checkResult->num_rows > 0) {
+
+        $updateSql = "UPDATE cart_items SET quantity = quantity + 1 WHERE user_id = $user_id AND product_id = $productId";
+        $conn->query($updateSql);
+    } else {
+
+        $insertSql = "INSERT INTO cart_items (user_id, product_id, quantity) VALUES ($user_id, $productId, 1)";
+        $conn->query($insertSql);
+    }
+
+    $action = 'Added product to cart';
+    $logSql = "INSERT INTO log (username, action, time_and_date) VALUES (?, ?, NOW())";
+    $stmt = $conn->prepare($logSql);
+    $stmt->bind_param('ss', $username, $action);
+    $stmt->execute();
     $stmt->close();
+
+    echo "Item added to the cart!";
+} else {
+    echo "Invalid request!";
 }
 
 $conn->close();

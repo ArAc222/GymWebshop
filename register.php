@@ -4,44 +4,56 @@ $username = "root";
 $password = "";
 $dbname = "webshop";
 
-// Spajanje na bazu podataka
+
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$message = '';  // Inicijalizacija poruke
+$message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Dobivanje podataka iz obrasca
-    $korisnicko_ime = $_POST['korisnicko_ime'];
-    $lozinka = password_hash($_POST['lozinka'], PASSWORD_DEFAULT);
+
+    $username = $_POST['username'];
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
     $email = $_POST['email'];
 
-    // Priprema SQL upita
-    $sql = "INSERT INTO korisnici (korisnicko_ime, lozinka, email) VALUES (?, ?, ?)";
+    $checkSql = "SELECT * FROM users WHERE username = ? OR email = ?";
+    $checkStmt = $conn->prepare($checkSql);
+    $checkStmt->bind_param('ss', $username, $email);
+    $checkStmt->execute();
+    $checkResult = $checkStmt->get_result();
 
-    // Izvršavanje SQL upita s parametrima
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('sss', $korisnicko_ime, $lozinka, $email);
-
-    // Izvršavanje upita
-    if ($stmt->execute()) {
-        $message = 'Registracija uspješna!';
-        
-        // Redirect to login page after successful registration
-        header('Location: login.php');
-        exit();
+    if ($checkResult->num_rows > 0) {
+        $message = 'Username or email already exists.';
     } else {
-        $message = 'Registracija nije uspjela.';
+        $sql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('sss', $username, $password, $email);
+
+        if ($stmt->execute()) {
+            $message = 'Registration successful!';
+
+            $action = 'Register';
+            $logSql = "INSERT INTO log (username, action, time_and_date) VALUES (?, ?, NOW())";
+            $logStmt = $conn->prepare($logSql);
+            $logStmt->bind_param('ss', $username, $action);
+            $logStmt->execute();
+
+            header('Location: login.php');
+            exit();
+        } else {
+            $message = 'Registration failed.';
+        }
+
+        $stmt->close();
     }
 
-    // Zatvaranje izjave
-    $stmt->close();
+    $checkStmt->close();
 }
 
-// Zatvaranje veze s bazom podataka
 $conn->close();
 ?>
 
@@ -51,28 +63,28 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registracija</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/css/logandregister.css">
 </head>
 <body>
     <header class="text-center mt-0">
-        <h1>Registracija</h1>
+        <h1>Registration</h1>
     </header>
     <div class="container mt-5">
         <div class="row">
             <div class="col-md-6 offset-md-3">
                 <?php if (!empty($message)): ?>
-                    <div class="alert alert-success" role="alert">
+                    <div class="alert alert-danger" role="alert">
                         <?php echo $message; ?>
                     </div>
                 <?php endif; ?>
                 <form action="register.php" method="post">
                     <div class="form-group">
-                        <label for="korisnicko_ime">Korisničko ime</label>
-                        <input type="text" class="form-control" id="korisnicko_ime" name="korisnicko_ime" required>
+                        <label for="username">Korisničko ime</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
                     </div>
                     <div class="form-group">
-                        <label for="lozinka">Lozinka</label>
-                        <input type="password" class="form-control" id="lozinka" name="lozinka" required>
+                        <label for="password">Lozinka</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
                     </div>
                     <div class="form-group">
                         <label for="email">Email adresa</label>
