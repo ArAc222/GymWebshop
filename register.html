@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registracija</title>
+    <link rel="stylesheet" href="/css/logandregister.css">
+</head>
+<body>
+    <?php include 'navbar.php'; ?>
+
+    <header class="text-center mt-0">
+        <h1>Registration</h1>
+    </header>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <div id="response-message"></div>
+                <form id="registration-form">
+                    <div class="form-group">
+                        <label for="username">Korisničko ime</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Lozinka</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email adresa</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="register()">Registriraj se</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        function register() {
+            var formData = $('#registration-form').serialize();
+
+            $.ajax({
+                url: 'register.php',
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function (response) {
+                    var messageContainer = $('#response-message');
+
+                    if (response.status === 'success') {
+                        messageContainer.removeClass('alert-danger').addClass('alert-success');
+                    } else {
+                        messageContainer.removeClass('alert-success').addClass('alert-danger');
+                    }
+
+                    messageContainer.text(response.message).show();
+                },
+                error: function (xhr, status, error) {
+                    console.error('Request failed with status', xhr.status);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+
+    <div class="container mt-5">
+        <h2>Your Cart</h2>
+
+        <div id="cartContent"></div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+    <script>
+        function updateQuantity(itemId, action) {
+            console.log('Button clicked!', itemId, action);
+
+            var confirmed = true;
+
+            if (action === 'removeAll') {
+                confirmed = confirm("Do you want to remove all items of this product?");
+            } else if (action === 'remove') {
+                confirmed = confirm("Do you want to remove this item?");
+            }
+
+            if (confirmed) {
+                var url = 'cart.php';
+                var data = 'itemId=' + itemId + '&action=' + action;
+
+                console.log('Ajax Data:', data);
+
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: data,
+                    success: function (response) {
+                        console.log('Response:', response);
+                        loadCartData(); // Reload cart data after updating
+                    },
+                    error: function (error) {
+                        console.error('Error updating quantity:', error);
+                    }
+                });
+            }
+        }
+
+        function loadCartData() {
+            var url = 'cart.php';
+
+            $.ajax({
+                type: 'GET',
+                url: url,
+                dataType: 'json',
+                success: function (cartItems) {
+                    var cartContent = $('#cartContent');
+                    if (cartItems.length > 0) {
+                        var tableHTML = '<table class="table">';
+                        tableHTML += '<thead><tr><th>Product Name</th><th>Quantity</th><th>Price</th><th>Action</th></tr></thead>';
+                        tableHTML += '<tbody>';
+
+                        $.each(cartItems, function (index, item) {
+                            tableHTML += '<tr>';
+                            tableHTML += '<td>' + item.name + '</td>';
+                            tableHTML += '<td>';
+                            if (item.quantity > 1) {
+                                tableHTML += '<button class="btn btn-sm btn-danger" onclick="updateQuantity(' + item.id + ', \'remove\')">-</button>';
+                            }
+                            tableHTML += ' ' + item.quantity + ' ';
+                            tableHTML += '<button class="btn btn-sm btn-success" onclick="updateQuantity(' + item.id + ', \'add\')">+</button>';
+                            tableHTML += '</td>';
+                            tableHTML += '<td>$' + (item.quantity * item.price).toFixed(2) + '</td>';
+                            tableHTML += '<td><a href="#" onclick="updateQuantity(' + item.id + ', \'removeAll\')">Remove All</a></td>';
+                            tableHTML += '</tr>';
+                        });
+
+                        tableHTML += '</tbody>';
+                        tableHTML += '</table>';
+                        cartContent.html(tableHTML);
+                    } else {
+                        cartContent.html('<p>Your cart is empty.</p>');
+                    }
+                },
+                error: function (error) {
+                    console.error('Error fetching cart data:', error);
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            loadCartData(); // Initial load of cart data
+        });
+    </script>
+</body>
+
+</html>

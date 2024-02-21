@@ -38,13 +38,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             session_start();
             $_SESSION['user_id'] = $row['id'];
 
-            header('Location: homepage.php');
+            // Return JSON response for successful login
+            echo json_encode(['redirect' => 'homepage.php']);
             exit();
         } else {
-            $message = 'Pogrešna password.';
+            // Return JSON response for incorrect password
+            echo json_encode(['error' => 'Pogrešna password.']);
+            exit();
         }
     } else {
-        $message = 'Korisnik nije pronađen.';
+        // Return JSON response for user not found
+        echo json_encode(['error' => 'Korisnik nije pronađen.']);
+        exit();
     }
 
     $stmt->close();
@@ -52,40 +57,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $conn->close();
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prijava</title>
-    <link rel="stylesheet" href="/css/logandregister.css">
-</head>
-<body>
-    <header class="text-center mt-0">
-        <h1>Login</h1>
-    </header>
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-md-6 offset-md-3">
-                <?php if (!empty($message)): ?>
-                    <div class="alert alert-success" role="alert">
-                        <?php echo $message; ?>
-                    </div>
-                <?php endif; ?>
-                <form action="login.php" method="post">
-                    <div class="form-group">
-                        <label for="username">Korisničko ime</label>
-                        <input type="text" class="form-control" id="username" name="username" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Lozinka</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Prijavi se</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</body>
-</html>

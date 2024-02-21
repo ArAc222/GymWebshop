@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym WebShop</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/navbarStyle.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Ensure jQuery is included -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            updateCartCount();
+            loadProducts();
+        });
+
+        function addToCart(productId, event) {
+            event.preventDefault();
+
+            var isConfirmed = confirm("Do you want to add this item to your cart?");
+
+            if (isConfirmed) {
+                $.ajax({
+                    url: 'addToCart.php', // Use your correct path for addToCart.php
+                    type: 'GET',
+                    data: { productId: productId },
+                    success: function (data) {
+                        showNotification(data);
+                        updateCartCount();
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Request failed with status', xhr.status);
+                    }
+                });
+            } else {
+                console.log("User canceled adding to cart");
+            }
+        }
+
+        function showNotification(message) {
+            alert(message);
+        }
+
+        function updateCartCount() {
+            $.ajax({
+                url: 'getCartCount.php', // Use your correct path for getCartCount.php
+                type: 'GET',
+                success: function (count) {
+                    $('#cartCount').text('Cart(' + count + ')');
+                },
+                error: function (xhr, status, error) {
+                    console.error('Request failed with status', xhr.status);
+                }
+            });
+        }
+
+        function loadProducts() {
+            $.ajax({
+                url: 'products.php',
+                type: 'GET',
+                dataType: 'json',
+                success: function (productData) {
+                    displayProducts(productData);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Request failed with status', xhr.status);
+                }
+            });
+        }
+
+        function displayProducts(productData) {
+            var cardDeck = $('.card-deck');
+            $.each(productData, function (index, product) {
+                if (index % 5 == 0) {
+                    cardDeck.append('</div><div class="card-deck">');
+                }
+                var imagePath = "http://localhost/pictures/" + product['image'];
+                cardDeck.append(
+                    '<div class="card">' +
+                    '<img src="' + imagePath + '" class="card-img-top" alt="' + product['name'] + '">' +
+                    '<div class="card-body">' +
+                    '<h5 class="card-title">' + product['name'] + '</h5>' +
+                    '<p class="card-text">' + product['description'] + '</p>' +
+                    '<p class="card-text">Price: $' + product['price'] + '</p>' +
+                    '<a href="#" class="btn btn-primary" onclick="addToCart(' + product['id'] + ', event)">Add to cart</a>' +
+                    '</div></div>'
+                );
+            });
+        }
+    </script>
+
+</head>
+
+<body>
+
+    <?php include 'navbar.php'; ?>
+
+    <header class="text-center mt-0">
+        <h1>Find everything for you!</h1>
+    </header>
+
+    <div class="container mt-5">
+        <div class="card-deck"></div>
+    </div>
+
+    <div class="pagination-container text-center mt-3">
+        <ul class="pagination">
+            <!-- Pagination will be dynamically added here using JavaScript -->
+        </ul>
+    </div>
+
+    <footer class="mt-0 text-center footer">
+        <p>&copy; 2023 Gym WebShop. All rights reserved.</p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+</body>
+
+</html>
